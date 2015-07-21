@@ -77,7 +77,8 @@ Public Function IsSome() As Boolean
     IsSome = (Not IsNone)
 
 End Function
-Public Function GetItem() As Variant
+Public Property Get GetItem() As Variant
+Attribute GetItem.VB_UserMemId = 0
 
     If IsSome Then
         Assign GetItem, pVar
@@ -85,7 +86,7 @@ Public Function GetItem() As Variant
         ValueError Me, "GetItem", "Cannot get None"
     End If
     
-End Function
+End Property
 Public Function GetOrElse(ByVal other) As Variant
 
     If IsSome Then
