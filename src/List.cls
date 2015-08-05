@@ -268,14 +268,26 @@ Attribute GroupBy.VB_Description = "Groups elements into a Dict according to `op
     Set GroupBy = result
 
 End Function
+Public Function ForExp(ByVal fin As IApplicable, ByVal flats As List) As List
+    
+    Dim result As List
+    If flats.Count = 0 Then
+        Set result = Map(fin)
+    Else
+        Set result = FlatMap(flats.Head).ForExp(fin, flats.Tail)
+    Set ForExp = result
+
+End Function
 ' TODO: Additional methods below
 ' Drop(ByVal n As Long) As List
+' DropWhile(ByVal pred As IApplicable) As List -- LastIndexWhere
 ' Take(ByVal n As Long) As List
+' TakeWhile(ByVal pred As IApplicable) As List -- IndexWhere
 ' FoldLeft, FoldRight, ReduceLeft, ReduceRight
 ' IndexOf(ByVal val) As Maybe[Long]
 ' IndexWhere(ByVal pred As IApplicable) As Maybe[Long]
 ' LastIndexOf(Byval val) As Maybe[Long]
-' lastIndexWhere(Byval pred As IApplicable) As Maybe[long]
+' LastIndexWhere(Byval pred As IApplicable) As Maybe[long]
 ' Find(ByVal pred As IApplicable) As Maybe = IndexWhere(pred).Map(OnArgs.Make("Item", VbGet, Me))
 ' FindLast(ByVal pred As IApplicable) As Maybe = LastIndexWhere(pred).Map(OnArgs.Make("Item", VbGet, Me))
 ' CountWhere(ByVal pred As IApplicable) As Boolean

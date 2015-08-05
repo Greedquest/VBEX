@@ -172,3 +172,27 @@ End Sub
 '@TestMethod
 Public Sub ListGroupBy()
 End Sub
+'@TestMethod
+Public Sub ListForExp()
+
+    Dim xs As List
+    Set xs = List.Repeat(List.Create(1, 2, 3), 5)
+    
+    Dim counter As OnObject
+    Set counter = OnObject.Make("Count", VbMethod)
+    Assert.IsTrue xs.Map(counter).Equals(xs.ForExp(counter))
+    
+    Dim tailer As OnObject
+    Set tailer = OnObject.Make("Tail", VbMethod)
+    Dim squarer As Lambda
+    Set squarer = Lambda.FromProper("(x) => x*x")
+    
+    Dim flatmapped As List
+    Set flatmapped = xs.FlatMap(tailer).Map(squarer)
+    
+    Dim forexpred2 As List
+    Set forexpred2 = xs.ForExp(squarer, List.Create(tailer))
+    
+    Assert.IsTrue flatmapped.Equals(forexpred2)
+
+End Sub
