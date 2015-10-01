@@ -84,7 +84,13 @@ End Function
 Public Function Repeat(ByVal x, ByVal n As Long) As List
 Attribute Repeat.VB_Description = "Create a new List of `x` repeated `n` times."
 
-    Set Repeat = defRepeat.Repeat(List, x, n)
+    Set Repeat = defBuildable.Repeat(List, x, n)
+
+End Function
+Public Function Enumerate(ByVal from As Long, ByVal til As Long, _
+    Optional ByVal by As Long = 1) As List
+
+    Set Enumerate = defBuildable.Enumerate(List, from, til, by)
 
 End Function
 '
@@ -118,13 +124,13 @@ End Property
 Public Function Map(ByVal op As IApplicable) As List
 Attribute Map.VB_Description = "Return a new List by applying `op` to the elements of this list.  Identical to LINQ Select"
     
-    Set Map = defMap.Map(List, op, Me)
+    Set Map = defMap.TransversableMap(List, op, Me)
     
 End Function
 Public Function FlatMap(ByVal op As IApplicable) As List
 Attribute FlatMap.VB_Description = "Return a new List by applying `op` to the elements of this list and concatenating the results."
 
-    Set FlatMap = defMap.FlatMap(List, op, Me)
+    Set FlatMap = defMap.TransversableBind(List, op, Me)
 
 End Function
 '
@@ -145,10 +151,10 @@ End Function
 '
 ' #### Accumulators
 '
-Public Function Fold(ByVal init As Variant, ByVal accum As IApplicable) As Variant
+Public Function Fold(ByVal Init As Variant, ByVal accum As IApplicable) As Variant
 Attribute Fold.VB_Description = "Accumulates a value by applying `accum` to each value using a given intial value. `Tail.Fold(Head,f) = Reduce(f)`"
     
-    Assign Fold, defAccum.Fold(accum, init, Me)
+    Assign Fold, defAccum.Fold(accum, Init, Me)
     
 End Function
 Public Function Reduce(ByVal accum As IApplicable) As Variant
@@ -157,10 +163,10 @@ Attribute Reduce.VB_Description = "Accumulates a value by applying `accum` to ea
     Assign Reduce, Tail.Fold(Head, accum)
     
 End Function
-Public Function Scan(ByVal init As Variant, ByVal accum As IApplicable) As List
+Public Function Scan(ByVal Init As Variant, ByVal accum As IApplicable) As List
 Attribute Scan.VB_Description = "Accumulates a list of by folding with `accum` and storing each result. `Scan(z,f).Last = Fold(z,f)`"
     
-    Set Scan = defAccum.Scan(List, accum, init, Me)
+    Set Scan = defAccum.Scan(List, accum, Init, Me)
     
 End Function
 '
@@ -185,7 +191,14 @@ End Function
 Public Function Tail() As List
 Attribute Tail.VB_Description = "Returns a new list of all but the first element."
     
-    Set Tail = Slice(2, Count)
+    Dim result As List
+    If Count > 2 Then
+        Set result = Slice(2, Count)
+    Else
+        Set result = Create()
+    End If
+    
+    Set Tail = result
     
 End Function
 Public Function Last() As Variant
@@ -204,33 +217,14 @@ Attribute MaybeLast.VB_Description = "Returns the last element if the list is no
     End If
     
 End Function
-Public Function init() As List
+Public Function Init() As List
 
-    Set init = Slice(1, Count - 1)
+    Set Init = Slice(1, Count - 1)
 
 End Function
 '
 ' #### Misc.
 '
-Public Function ToArray() As Variant()
-Attribute ToArray.VB_Description = "Constructs an Array of the elements."
-
-    If pCollec.Count = 0 Then
-        ToArray = Array()
-        Exit Function
-    End If
-    
-    Dim a() As Variant
-    ReDim a(pCollec.Count - 1) As Variant
-    
-    Dim i As Long
-    For i = 1 To pCollec.Count
-        cast.Assign a(i - 1), pCollec(i)
-    Next i
-    
-    ToArray = a
-    
-End Function
 Public Function Reverse() As List
 Attribute Reverse.VB_Description = "Returns the reverse of the list."
     
@@ -278,11 +272,30 @@ Public Function ForExp(ByVal fin As IApplicable, ByVal flats As List) As List
     Set ForExp = result
 
 End Function
-' TODO: Additional methods below
-' Drop(ByVal n As Long) As List
-' DropWhile(ByVal pred As IApplicable) As List -- LastIndexWhere
-' Take(ByVal n As Long) As List
-' TakeWhile(ByVal pred As IApplicable) As List -- IndexWhere
+Public Function Drop(ByVal n As Long) As List
+
+    Dim result As List
+    If n < Count Then
+        Set result = Slice(n + 1, Count)
+    Else
+        Set result = Create()
+    End If
+
+    Set Drop = result
+
+End Function
+Public Function Take(ByVal n As Long) As List
+
+    Dim result As List
+    If n < Count Then
+        Set result = Slice(1, n)
+    Else
+        Set result = Copy(Me)
+    End If
+
+    Set Take = result
+
+End Function
 ' FoldLeft, FoldRight, ReduceLeft, ReduceRight
 ' IndexOf(ByVal val) As Maybe[Long]
 ' IndexWhere(ByVal pred As IApplicable) As Maybe[Long]
@@ -507,6 +520,26 @@ Private Function IIterable_UpperBound() As Long
 
     IIterable_UpperBound = Count
 
+End Function
+Public Function ToArray() As Variant()
+
+    ToArray = defIterable.ToArray(Me)
+
+End Function
+Public Function ToCollection() As Collection
+
+    Set ToCollection = defIterable.ToCollection(Me)
+
+End Function
+Private Function IIterable_ToArray() As Variant()
+
+    IIterable_ToArray = ToArray
+
+End Function
+Private Function IIterable_ToCollection() As Collection
+
+    Set IIterable_ToCollection = ToCollection
+    
 End Function
 '
 ' ### IEquatable
