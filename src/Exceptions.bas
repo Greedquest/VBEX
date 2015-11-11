@@ -14,7 +14,7 @@ Public Enum exErrorNums
     OBJECT_REQUIRED = vbErrorNums.OBJECT_REQUIRED
     INDEX_ERROR = vbErrorNums.INDEX_ERROR
     VALUE_ERROR = vbErrorNums.VALUE_ERROR
-    UNIMPLEMENTED = 1 ' TODO: use more non-conflicting values
+    Unimplemented = 1 ' TODO: use more non-conflicting values
     KEY_ERROR
     OS_ERROR
 End Enum
@@ -51,7 +51,7 @@ Public Sub NotImplementedError(ByVal raiser, ByVal method As String)
     Dim msg As String
     msg = source & " Not implemented."
 
-    Err.Raise exErrorNums.UNIMPLEMENTED, description:=MakeDescription(raiser, method, msg)
+    Err.Raise exErrorNums.Unimplemented, description:=MakeDescription(raiser, method, msg)
     
 End Sub
 Public Sub OSError(ByVal raiser, ByVal method As String, _

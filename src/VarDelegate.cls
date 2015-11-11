@@ -10,16 +10,17 @@ Attribute VB_Exposed = True
 Option Explicit
 '
 ' Var Delegate
-' ========
+' ============
 '
 ' Black Magic...
 '    Lambda.cls writes source code and has that code compiled and executed all
 ' at run-time.  Delegate.cls modifies it's own compiled code at run-time.  In
-' summary, we will replace the address of a member function (ProtoProc) with 
-' the address of a given global function. 
-'    Replacing the member function address is manageable for Sub routines with 
-' no parameters.  In order to handle functions or any procedure that takes 
-' parameters we must begin injecting compiled ASM code actually modify procedure
+' summary, we will replace the address of a member function (ProtoProc) with
+' the address of a given global function.
+'    Replacing the member function address is manageable for Sub routines with
+' no parameters.  In order to handle functions or any procedure that takes
+' parameters we must begin injecting compiled ASM code to actually modify the
+' procedure.
 ' I don't know ASM so all ASM code was provided from
 '
 ' http://www.codeproject.com/Articles/19239/Compilers-Demystified-Function-Pointers-in-Visual
@@ -37,16 +38,14 @@ Private Declare Function GlobalAlloc Lib "kernel32.dll" _
         (ByVal wFlags As Long, ByVal dwBytes As Long) As Long
 Private Const GMEM_FIXED = &H0
 
-' Black magic spell
+' Black magic spell:
 ' It's compiled ASM binary code represented as a hexadecimal string
 ' We will inject into a function and it will do shit I don't understand
-'
-Private Const hexStub4ProcedureCall = "585950B822114000FFE0"
-
-
+Private Const hexStub4ProcedureCall = "585950B822114000FFE0" ' <- a program
 '
 ' Private Members
 ' ---------------
+'
 Private Const OFFSET_TO_VFT = &H1C
 Private Const VFT_ELEM_SIZE As Integer = 4
 
@@ -58,7 +57,6 @@ Private Type tVFTRecord
 End Type
 Private delegateProcRec As tVFTRecord
 
-
 '
 ' Proto PROC
 ' ----------
@@ -67,7 +65,7 @@ Private delegateProcRec As tVFTRecord
 ' it needs to be at the top ALWAYS!!!!!
 ' casue black magic...
 Public Sub ProtoProc(ByVal x As Variant)
-    Exceptions.Unimplemented
+    Exceptions.NotImplementedError Me, "ProtoProc"
 End Sub
 '
 ' Constructors
@@ -91,11 +89,11 @@ Private Sub Class_Terminate()
     RestoreProtoProc
     
 End Sub
-Public Function Create(ByVal procAddr As Long) As VarDelegate
+Public Function Make(ByVal procAddr As Long) As VarDelegate
 
     Dim result As New VarDelegate
     result.ProcedureAddress = procAddr
-    Set Create = result
+    Set Make = result
     
 End Function
 Friend Property Let ProcedureAddress(ByVal procAddr As Long)
@@ -172,7 +170,7 @@ Private Function ReadByteMagic(ByVal byteCount As Long, ByVal hexCode As String)
     Dim i As Long
     For i = 1 To byteCount
         'convert each pair of hex chars to a byte code
-        results(i) = Val("&H" & Mid$(hexCode, i * 2 - 1, 2))
+        results(i) = val("&H" & Mid$(hexCode, i * 2 - 1, 2))
     Next i
     
     ReadByteMagic = results

@@ -48,7 +48,7 @@ Sub TestArrayArgs()
     Assert.AreEqual "", globalVar, "Check initial conditions"
     
     Dim f As VarDelegate
-    Set f = VarDelegate.Create(AddressOf VarWrapper)
+    Set f = VarDelegate.Make(AddressOf VarWrapper)
     f.Run "Spam", 3
 
     Assert.AreEqual "Spam Spam Spam ", globalVar
@@ -61,13 +61,13 @@ Sub TestArgsWithMultipleInstances()
     Assert.AreEqual "", globalVar, "Check initial conditions"
     
     Dim f1 As VarDelegate
-    Set f1 = VarDelegate.Create(AddressOf VarWrapper)
+    Set f1 = VarDelegate.Make(AddressOf VarWrapper)
     f1.Run "Spam", 3
     
     Assert.AreEqual "Spam Spam Spam ", globalVar
     
     Dim f2 As VarDelegate
-    Set f2 = VarDelegate.Create(AddressOf VarWrapperAlt)
+    Set f2 = VarDelegate.Make(AddressOf VarWrapperAlt)
     f2.Run "ernative", 3
     
     Assert.AreEqual "Alternative Alternative Alternative ", globalVar
