@@ -249,10 +249,6 @@ End Function
 ' ---------
 '
 Public Function Item(ByVal index As Long) As String
-
-    If index < LowerBound Or UpperBound < index Then
-        Exceptions.IndexError Me, "Item", "Index " & index & " is out of bounds"
-    End If
     
     Item = Mid(pString, index, 1)
     

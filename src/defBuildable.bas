@@ -18,7 +18,7 @@ End Function
 Public Function Enumerate(ByVal seed As Buildable, ByVal from As Long, _
         ByVal til As Long, Optional ByVal by As Long = 1) As Buildable
 
-    If Not (0 < (til - from) * Sgn(by)) Then ' Does not converge
+    If Not (0 <= (til - from) * Sgn(by)) Then ' Does not converge
         Exceptions.ValueError seed, "Enumerate", "Sequence does not converge"
     End If
 
